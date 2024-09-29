@@ -1,23 +1,20 @@
 import SwiftUI
 
 struct ContentView: View {
-    // TODO: NSUserDfaultを利用
-    // TODO: 空白の除去
-
     // 税抜金額
-    @State private var amountIncludingTax = ""
+    @State private var amountExcludingTax = ""
+    // 消費税率 SwiftUIでUserDefaultsを利用
+    @AppStorage("consumptionTaxRate") var consumptionTaxRate = ""
     // 税込金額
-    @State private var amountExcludingTax = 0
-    // 消費税率
-    @State private var consumptionTaxRate = ""
+    @State private var amountIncludingTax = 0
 
     var body: some View {
         VStack {
             HStack {
                 Spacer()
                 Text("税抜金額")
-                TextField("", text: $amountIncludingTax)
-                    .roundedTextFieldStyle()
+                TextField("", text: $amountExcludingTax)
+                    .roundedBorderTextFieldStyle()
                 Text("円")
                 Spacer()
             }
@@ -25,21 +22,20 @@ struct ContentView: View {
                 Spacer()
                 Text("消費税率")
                 TextField("", text: $consumptionTaxRate)
-                    .roundedTextFieldStyle()
+                    .roundedBorderTextFieldStyle()
                 Text("%")
                 Spacer()
             }
             Button(action: {
-                let tax = 1.0 + Double(consumptionTaxRate)! / 100
-                amountExcludingTax = Int(Double(amountIncludingTax)! * tax)
+                checkAndCalculate()
             }, label: {
                 Text("計算")
             })
             HStack {
                 Spacer()
                 Text("税込金額")
-                Text(String(amountExcludingTax))
-                    .frame(width: 100)
+                Text(String(amountIncludingTax))
+                    .frame(width: 100, alignment: .trailing)
                 Text("円")
                 Spacer()
             }
@@ -47,31 +43,25 @@ struct ContentView: View {
         }
         .padding()
     }
-//    func checkTextField() {
-//        // 割られる数の入力存在チェック
-//        // スペース除去も実施
-//        guard let number1 = Float(amountIncludingTax.trimmingCharacters(in: .whitespaces)) else {
-//            return
-//        }
-//        
-//        // 割る数の入力存在チェック
-//        // スペース除去も実施
-//        guard  let number2 = Float(inputNumber2.trimmingCharacters(in: .whitespaces)) else {
-//            return
-//        }
-//        
-//        // 割る数の0チェック
-//        if number2 == 0 {
-//            alertType = .inputNumber2ZeroAlert
-//            showAlert = true
-//        } else {
-//            result = number1 / number2
-//        }
-//    }
+
+    func checkAndCalculate() {
+        // 税抜金額の入力存在チェックし、スペース除去も実施
+        guard let amountExcludingTaxValue = Double(amountExcludingTax.trimmingCharacters(in: .whitespaces)) else {
+            return
+        }
+
+        // 消費税率の入力存在チェックし、スペース除去も実施
+        guard  let consumptionTaxRateValue = Int(consumptionTaxRate.trimmingCharacters(in: .whitespaces)) else {
+            return
+        }
+
+        let taxRateForCalculation = 1.0 + Double(consumptionTaxRateValue) / 100
+        amountIncludingTax = Int(amountExcludingTaxValue * taxRateForCalculation)
+    }
 }
 
 extension TextField {
-    func roundedTextFieldStyle() -> some View {
+    func roundedBorderTextFieldStyle() -> some View {
         return self
             .textFieldStyle(.roundedBorder)
             .frame(width: 100)
