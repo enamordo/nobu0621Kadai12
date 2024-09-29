@@ -51,11 +51,11 @@ struct ContentView: View {
         }
 
         // 消費税率の入力存在チェックし、スペース除去も実施
-        guard  let consumptionTaxRateValue = Int(consumptionTaxRate.trimmingCharacters(in: .whitespaces)) else {
+        guard  let consumptionTaxRateValue = Double(consumptionTaxRate.trimmingCharacters(in: .whitespaces)) else {
             return
         }
 
-        let taxRateForCalculation = 1.0 + Double(consumptionTaxRateValue) / 100
+        let taxRateForCalculation = 1.0 + consumptionTaxRateValue / 100.0
         amountIncludingTax = Int(amountExcludingTaxValue * taxRateForCalculation)
     }
 }
@@ -65,6 +65,7 @@ extension TextField {
         return self
             .textFieldStyle(.roundedBorder)
             .frame(width: 100)
+            .multilineTextAlignment(.trailing)
             .keyboardType(.numberPad)
     }
 }
