@@ -8,7 +8,6 @@ struct ContentView: View {
     // 税込金額
     @State private var amountIncludingTax = 0
 
-    // revert revert revert
     var body: some View {
         VStack {
             HStack {
